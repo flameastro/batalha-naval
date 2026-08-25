@@ -68,73 +68,66 @@ def converter_linha(linha):
     return linha
 
 
+def define_posicao(linha_inicial, coluna_inicial, linha, coluna, i):
+    pos = None
+    if coluna_inicial + i == coluna:
+        pos = "direita"
+    elif coluna_inicial - i == coluna:
+        pos = "esquerda"
+    elif linha_inicial + i == linha:
+        pos = "baixo"
+    elif linha_inicial - i == linha:
+        pos = "cima"
+
+    return pos
+
+
+def define_posicao_jogador():
+    posicao = input("Posição do mapa (A1/B3/F6): ").upper().strip()
+    linha = converter_linha(posicao[0])
+    coluna = int(posicao[1:])
+
+    return [posicao, linha, coluna]
+
+
 def inserir_navio_jogador(mapa, repeticoes):
     posicao_inicial = []
     posicao_escolhida = None
     posicao_jogada = None
 
     for i in range(repeticoes):
-        print("-" * 50)
-        posicao = input("Posição do mapa (A1/B3/F6): ").upper().strip()
-        linha = converter_linha(posicao[0])
-        coluna = int(posicao[1:])
+        jogada_certa = False
 
-        # posicoes_disponiveis = ["cima", "baixo", "esquerda", "direita"]
+        while not jogada_certa:
+            print("-" * 50)
+            posicao, linha, coluna = define_posicao_jogador()
 
-        if i == 0:
-            mapa[linha][coluna] = 1
-            posicao_inicial.append(linha)
-            posicao_inicial.append(coluna)
+            if i == 0:
+                mapa[linha][coluna] = 1
+                posicao_inicial.append(linha)
+                posicao_inicial.append(coluna)
 
-            linha_inicial = posicao_inicial[0]
-            coluna_inicial = posicao_inicial[1]
+                linha_inicial = posicao_inicial[0]
+                coluna_inicial = posicao_inicial[1]
+                jogada_certa = True
+            else:
+                if (coluna_inicial + i == coluna and linha_inicial == linha) or (coluna_inicial - i == coluna and linha_inicial == linha) or (linha_inicial + i == linha and coluna_inicial == coluna) or (linha_inicial - i == linha and coluna_inicial == coluna):
+                    if i == 1:
+                        posicao_escolhida = define_posicao(linha_inicial, coluna_inicial, linha, coluna, i)
 
-            # Análise das posições -> Remove direções impossíveis
-            # ! Trocar caso erros
-            # EDIT: Provavelmente inútil
-            # if linha + repeticoes >= 10:
-            #     # posicoes_disponiveis.remove("baixo")
-            #     posicoes_disponiveis.remove("direita")
-            # if linha - repeticoes < 0:
-            #     posicoes_disponiveis.remove("esquerda")
-            # if coluna + repeticoes >= 10:
-            #     # posicoes_disponiveis.remove("direita")
-            #     posicoes_disponiveis.remove("baixo")
-            # if coluna - repeticoes < 0:
-            #     posicoes_disponiveis.remove("cima")
-        else:
-            if coluna_inicial + i == coluna or coluna_inicial - i == coluna or linha_inicial + i == linha or linha_inicial - i == linha:
-                if i == 1:
-                    # Pega a posição escolhida do jogador
-                    # ! Usar função caso necessário
-                    if coluna_inicial + 1 == coluna:
-                        posicao_escolhida = "direita"
-                    elif coluna_inicial - 1 == coluna:
-                        posicao_escolhida = "esquerda"
-                    elif linha_inicial + 1 == linha:
-                        posicao_escolhida = "baixo"
-                    elif linha_inicial - 1 == linha:
-                        posicao_escolhida = "cima"
-                    print(posicao_escolhida)
+                        if posicao_escolhida:
+                            mapa[linha][coluna] = 1
+                            jogada_certa = True
+                    else:
+                        posicao_jogada = define_posicao(linha_inicial, coluna_inicial, linha, coluna, i)
 
-                    if posicao_escolhida:
-                        mapa[linha][coluna] = 1
-                else:
-                    # ! Usar função caso necessário
-                    if coluna_inicial + i == coluna:
-                        posicao_jogada = "direita"
-                    elif coluna_inicial - i == coluna:
-                        posicao_jogada = "esquerda"
-                    elif linha_inicial + i == linha:
-                        posicao_jogada = "baixo"
-                    elif linha_inicial - i == linha:
-                        posicao_jogada = "cima"
+                        print(posicao_jogada, posicao_escolhida)
+                        if posicao_jogada == posicao_escolhida:
+                            mapa[linha][coluna] = 1
+                            jogada_certa = True
 
-                    print(posicao_jogada, posicao_escolhida)
-                    if posicao_jogada == posicao_escolhida:
-                        mapa[linha][coluna] = 1
 
-        visualizar_mapa(mapa, LINHAS, COLUNAS)
+            visualizar_mapa(mapa, LINHAS, COLUNAS)
 
 
     return mapa
@@ -213,10 +206,10 @@ LINHAS = 10
 COLUNAS = 10
 
 # Jogador
-# mapa_jogador = criar_mapa(LINHAS, COLUNAS)
-# mapa_jogador = inserir_navio_jogador(mapa_jogador, 3)
+mapa_jogador = criar_mapa(LINHAS, COLUNAS)
+mapa_jogador = inserir_navio_jogador(mapa_jogador, 3)
 
 # Bot
-mapa_bot = criar_mapa(LINHAS, COLUNAS)
-mapa_bot = inserir_navio_bot(mapa_bot, 3)
-visualizar_mapa(mapa_bot, LINHAS, COLUNAS)
+# mapa_bot = criar_mapa(LINHAS, COLUNAS)
+# mapa_bot = inserir_navio_bot(mapa_bot, 3)
+# visualizar_mapa(mapa_bot, LINHAS, COLUNAS)
