@@ -1,3 +1,6 @@
+import random
+
+
 # Criar a matriz 10x10
 # Visualizar a matriz
 # Verificar em quais posições o bot pode colocar os navios
@@ -10,7 +13,8 @@
 # Regras
 # None (■) -> Posição não jogada
 # 0 (x) -> Errou (Água)
-# 1 (•) -> Acertou
+# 1 (|) -> Navio
+# 2 (•) -> Acertou
 
 
 def criar_mapa(linhas, colunas):
@@ -47,6 +51,8 @@ def visualizar_mapa(mapa, linhas, colunas):
             elif valor == 0:
                 print("x", end=" ")
             elif valor == 1:
+                print("|", end=" ")
+            elif valor == 2:
                 print("•", end=" ")
 
         print("")
@@ -128,7 +134,76 @@ def inserir_navio_jogador(mapa, repeticoes):
                     if posicao_jogada == posicao_escolhida:
                         mapa[linha][coluna] = 1
 
-        visualizar_mapa(mapa_jogador, LINHAS, COLUNAS)
+        visualizar_mapa(mapa, LINHAS, COLUNAS)
+
+
+    return mapa
+
+
+def inserir_navio_bot(mapa, repeticoes):
+    primeira_jogada = []
+    posicoes_disponiveis = ["cima", "baixo", "direita", "esquerda"]
+    posicao_escolhida = None
+
+    for i in range(repeticoes):
+        if i == 0:
+            linha = random.randint(0, 9)
+            coluna = random.randint(0, 9)
+            primeira_jogada.append(linha)
+            primeira_jogada.append(coluna)
+            mapa[linha][coluna] = 1
+        else:
+            # Ver as jogadas disponíveis
+            # Escolher umas dessas jogadas aleatóriamente
+            # Preencher
+            if not posicao_escolhida:
+                primeira_linha = primeira_jogada[0]
+                primeira_coluna = primeira_jogada[1]
+
+                # if linha + repeticoes >= 10:
+                #     # posicoes_disponiveis.remove("baixo")
+                #     posicoes_disponiveis.remove("direita")
+                # if linha - repeticoes < 0:
+                #     posicoes_disponiveis.remove("esquerda")
+                # if coluna + repeticoes >= 10:
+                #     # posicoes_disponiveis.remove("direita")
+                #     posicoes_disponiveis.remove("baixo")
+                # if coluna - repeticoes < 0:
+                #     posicoes_disponiveis.remove("cima")
+
+                if linha + repeticoes >= 10:
+                    posicoes_disponiveis.remove("baixo")
+                if linha - repeticoes < 0:
+                    posicoes_disponiveis.remove("cima")
+                if coluna + repeticoes >= 10:
+                    posicoes_disponiveis.remove("direita")
+                if coluna - repeticoes < 0:
+                    posicoes_disponiveis.remove("esquerda")
+
+                posicao_escolhida = random.choice(posicoes_disponiveis)
+                print(posicao_escolhida)
+
+                if posicao_escolhida == "baixo":
+                    linha += i
+                elif posicao_escolhida == "cima":
+                    linha -= i
+                elif posicao_escolhida == "direita":
+                    coluna += i
+                elif posicao_escolhida == "esquerda":
+                    coluna -= i
+
+                mapa[linha][coluna] = 1
+            else:
+                if posicao_escolhida == "baixo":
+                    primeira_linha += i
+                elif posicao_escolhida == "cima":
+                    primeira_linha -= i
+                elif posicao_escolhida == "direita":
+                    primeira_coluna += i
+                elif posicao_escolhida == "esquerda":
+                    primeira_coluna -= i
+
+                mapa[primeira_linha][primeira_coluna] = 1
 
 
     return mapa
@@ -136,5 +211,12 @@ def inserir_navio_jogador(mapa, repeticoes):
 
 LINHAS = 10
 COLUNAS = 10
-mapa_jogador = criar_mapa(LINHAS, COLUNAS)
-mapa_jogador = inserir_navio_jogador(mapa_jogador, 3)
+
+# Jogador
+# mapa_jogador = criar_mapa(LINHAS, COLUNAS)
+# mapa_jogador = inserir_navio_jogador(mapa_jogador, 3)
+
+# Bot
+mapa_bot = criar_mapa(LINHAS, COLUNAS)
+mapa_bot = inserir_navio_bot(mapa_bot, 3)
+visualizar_mapa(mapa_bot, LINHAS, COLUNAS)
