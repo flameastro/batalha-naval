@@ -21,8 +21,6 @@ def criar_mapa(linhas: int, colunas: int) -> list:
 
 
 def visualizar_mapa(mapa: list, linhas: int, colunas: int, secret: bool) -> None:
-    # Linhas -> Números
-    # Colunas -> Letras
     LETRAS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 
     print("", end="  ")
@@ -37,23 +35,14 @@ def visualizar_mapa(mapa: list, linhas: int, colunas: int, secret: bool) -> None
         for coluna in range(colunas):
             valor = mapa[linha][coluna]
 
-            # todo: fazer uma lógica mais eficiente
-            if not secret:
-                if valor == None and not secret:
-                    print("■", end=" ")
-                elif valor == 0:
-                    print(CYAN + "x", end=" ")
-                elif valor == 1:
-                    print(BLUE + "|", end=" ")
-                elif valor == 2:
-                    print(RED + "•", end=" ")
-            else:
-                if valor == None or valor == 1:
-                    print("■", end=" ")
-                elif valor == 0:
-                    print(CYAN + "x", end=" ")
-                elif valor == 2:
-                    print(RED + "•", end=" ")
+            if valor == None or (valor == 1 and secret):
+                print("■", end=" ")
+            elif valor == 0:
+                print(CYAN + "x", end=" ")
+            elif valor == 1:
+                print(BLUE + "|", end=" ")
+            elif valor == 2:
+                print(RED + "•", end=" ")
 
         print("")
 
@@ -95,6 +84,7 @@ def conseguir_posicao():
 
 def define_posicao_jogador():
     linha, coluna = conseguir_posicao()
+
     while not coluna.isnumeric():
         print("Posição incorreta. Tente novamente.")
         linha, coluna = conseguir_posicao()
@@ -213,7 +203,7 @@ def atacar_jogador(mapa: list):
     novo_valor = None
 
     linha, coluna, valor = gera_posicao()
-    while valor == 0 or valor == 2:  # já jogado ou já acertado
+    while valor == 0 or valor == 2:
         linha, coluna, valor = gera_posicao()
 
     if valor == None:
@@ -223,7 +213,6 @@ def atacar_jogador(mapa: list):
         acerto += 1
 
     mapa[linha][coluna] = novo_valor
-
     visualizar_mapa(mapa, LINHAS, COLUNAS, False)
 
     return [mapa, acerto]
@@ -251,9 +240,7 @@ def atacar_bot(mapa: list):
             novo_valor = 2
             acerto += 1
 
-    # note: possível indentação incorreta. Caso erro, indente +1
     mapa[linha][coluna] = novo_valor
-
     visualizar_mapa(mapa, LINHAS, COLUNAS, True)
 
     return [mapa, acerto]
@@ -262,24 +249,18 @@ def atacar_bot(mapa: list):
 LINHAS = 10
 COLUNAS = 10
 
-# Jogador
 mapa_jogador = criar_mapa(LINHAS, COLUNAS)
 mapa_jogador = inserir_navio_jogador(mapa_jogador, 3)
 
-# Bot
 mapa_bot = criar_mapa(LINHAS, COLUNAS)
 mapa_bot = inserir_navio_bot(mapa_bot, 3)
 
-# Atacar Navios
 jogadas_acertadas_bot = 0
 jogadas_acertadas_jogador = 0
 
-while True:
+while jogadas_acertadas_bot != 3 and jogadas_acertadas_jogador != 3:
     ataque_jogador, acerto = atacar_jogador(mapa_jogador)
     jogadas_acertadas_jogador += acerto
 
     ataque_bot, acerto = atacar_bot(mapa_bot)
     jogadas_acertadas_bot += acerto
-
-    if jogadas_acertadas_bot == 3 or jogadas_acertadas_jogador == 3:
-        break
