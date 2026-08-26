@@ -7,9 +7,6 @@ import random
 # Verificar em quais posições o jogador pode colocar os navios
 # Começar o jogo
 
-
-# TODO: verificar se posição que o usuário insere já está ocupada no mapa. Por exemplo, A1 -> A1 (repetido)
-
 # Regras
 # None (■) -> Posição não jogada
 # 0 (x) -> Errou (Água)
@@ -218,14 +215,48 @@ def inserir_navio_bot(mapa, repeticoes):
     return mapa
 
 
+def atacar_jogador(mapa):
+    # Bot ataca Jogador
+    novo_valor = None
+
+    def gera_posicao():
+        linha = random.randint(0, 9)
+        coluna = random.randint(0, 9)
+
+        valor = mapa[linha][coluna]
+        return [linha, coluna, valor]
+
+    linha, coluna, valor = gera_posicao()
+    while valor == 0 or valor == 2:  # já jogado ou já acertado
+        linha, coluna, valor = gera_posicao()
+
+    if valor == None:
+        novo_valor = 0
+    elif valor == 1:
+        novo_valor = 2
+
+    mapa[linha][coluna] = novo_valor
+
+    return mapa
+
+
 LINHAS = 10
 COLUNAS = 10
 
 # Jogador
+# Colocar Navios
 mapa_jogador = criar_mapa(LINHAS, COLUNAS)
 mapa_jogador = inserir_navio_jogador(mapa_jogador, 3)
 
+# Atacar Navios
+# ...
+
 # Bot
+# Colocar Navios
 # mapa_bot = criar_mapa(LINHAS, COLUNAS)
 # mapa_bot = inserir_navio_bot(mapa_bot, 3)
 # visualizar_mapa(mapa_bot, LINHAS, COLUNAS)
+
+# Atacar Navios
+ataque = atacar_jogador(mapa_jogador)
+visualizar_mapa(ataque, LINHAS, COLUNAS)
