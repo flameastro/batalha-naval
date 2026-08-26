@@ -60,15 +60,22 @@ def visualizar_mapa(mapa, linhas, colunas):
 
 def converter_linha(linha):
     LETRAS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+
+    if linha not in LETRAS:
+        return -1
+
     for i in range(len(LETRAS)):
         if linha == LETRAS[i]:
             linha = i
-            break
 
     return linha
 
 
-def define_posicao(linha_inicial, coluna_inicial, linha, coluna, i):
+def valida_posicao(linha, coluna):
+    return (linha >= 0 and linha <= 9) and (coluna >= 0 and coluna <= 9)
+
+
+def verifica_posicao(linha_inicial, coluna_inicial, linha, coluna, i):
     pos = None
     if coluna_inicial + i == coluna:
         pos = "direita"
@@ -83,11 +90,21 @@ def define_posicao(linha_inicial, coluna_inicial, linha, coluna, i):
 
 
 def define_posicao_jogador():
-    posicao = input("Posição do mapa (A1/B3/F6): ").upper().strip()
-    linha = converter_linha(posicao[0])
-    coluna = int(posicao[1:])
+    def molde():
+        posicao = input("Posição do mapa (A1/B3/F6): ").upper().strip()
+        linha = converter_linha(posicao[0])
+        coluna = posicao[1:]
 
-    return [posicao, linha, coluna]
+        return [linha, coluna]
+
+    linha, coluna = molde()
+    while not coluna.isnumeric():
+        linha, coluna = molde()
+
+    while not valida_posicao(linha, int(coluna)):
+        linha, coluna = molde()
+
+    return [linha, int(coluna)]
 
 
 def inserir_navio_jogador(mapa, repeticoes):
@@ -100,7 +117,7 @@ def inserir_navio_jogador(mapa, repeticoes):
 
         while not jogada_certa:
             print("-" * 50)
-            posicao, linha, coluna = define_posicao_jogador()
+            linha, coluna = define_posicao_jogador()
 
             if i == 0:
                 mapa[linha][coluna] = 1
@@ -113,15 +130,14 @@ def inserir_navio_jogador(mapa, repeticoes):
             else:
                 if (coluna_inicial + i == coluna and linha_inicial == linha) or (coluna_inicial - i == coluna and linha_inicial == linha) or (linha_inicial + i == linha and coluna_inicial == coluna) or (linha_inicial - i == linha and coluna_inicial == coluna):
                     if i == 1:
-                        posicao_escolhida = define_posicao(linha_inicial, coluna_inicial, linha, coluna, i)
+                        posicao_escolhida = verifica_posicao(linha_inicial, coluna_inicial, linha, coluna, i)
 
                         if posicao_escolhida:
                             mapa[linha][coluna] = 1
                             jogada_certa = True
                     else:
-                        posicao_jogada = define_posicao(linha_inicial, coluna_inicial, linha, coluna, i)
+                        posicao_jogada = verifica_posicao(linha_inicial, coluna_inicial, linha, coluna, i)
 
-                        print(posicao_jogada, posicao_escolhida)
                         if posicao_jogada == posicao_escolhida:
                             mapa[linha][coluna] = 1
                             jogada_certa = True
