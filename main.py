@@ -1,11 +1,5 @@
 import random
-
-
-# Criar a matriz 10x10
-# Visualizar a matriz
-# Verificar em quais posições o bot pode colocar os navios
-# Verificar em quais posições o jogador pode colocar os navios
-# Começar o jogo
+from src.colors import *
 
 # Regras
 # None (■) -> Posição não jogada
@@ -34,23 +28,23 @@ def visualizar_mapa(mapa: list, linhas: int, colunas: int) -> None:
     print("", end="  ")
 
     for i in range(linhas):
-        print(i, end=" ")
+        print(BLACK + str(i), end=" ")
 
     print("")
 
     for linha in range(linhas):
-        print(LETRAS[linha], end=" ")
+        print(BLACK + LETRAS[linha], end=" ")
         for coluna in range(colunas):
             valor = mapa[linha][coluna]
 
             if valor == None:
                 print("■", end=" ")
             elif valor == 0:
-                print("x", end=" ")
+                print(CYAN + "x", end=" ")
             elif valor == 1:
-                print("|", end=" ")
+                print(BLUE + "|", end=" ")
             elif valor == 2:
-                print("•", end=" ")
+                print(RED + "•", end=" ")
 
         print("")
 
@@ -105,6 +99,7 @@ def inserir_navio_jogador(mapa: list, repeticoes: int):
     posicao_inicial = []
     posicao_escolhida = None
     posicao_jogada = None
+
     for i in range(repeticoes):
         jogada_certa = False
 
@@ -238,28 +233,26 @@ def atacar_bot(mapa: list):
 
         mapa[linha][coluna] = novo_valor
 
-        return mapa
+    return mapa
 
 
 LINHAS = 10
 COLUNAS = 10
 
 # Jogador
-# Colocar Navios
-# mapa_jogador = criar_mapa(LINHAS, COLUNAS)
-# mapa_jogador = inserir_navio_jogador(mapa_jogador, 3)
+mapa_jogador = criar_mapa(LINHAS, COLUNAS)
+mapa_jogador = inserir_navio_jogador(mapa_jogador, 3)
 
 # Bot
-# Colocar Navios
 mapa_bot = criar_mapa(LINHAS, COLUNAS)
 mapa_bot = inserir_navio_bot(mapa_bot, 3)
 visualizar_mapa(mapa_bot, LINHAS, COLUNAS)
 
 
 # Atacar Navios
-# ataque_bot = atacar_bot(mapa_bot)
-# visualizar_mapa(ataque_bot, LINHAS, COLUNAS)
+ataque_bot = atacar_bot(mapa_bot)
+visualizar_mapa(ataque_bot, LINHAS, COLUNAS)
 
 # Atacar Navios
-# ataque_jogador = atacar_jogador(mapa_jogador)
-# visualizar_mapa(ataque_jogador, LINHAS, COLUNAS)
+ataque_jogador = atacar_jogador(mapa_jogador)
+visualizar_mapa(ataque_jogador, LINHAS, COLUNAS)
