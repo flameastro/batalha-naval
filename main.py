@@ -9,18 +9,18 @@ from src.colors import *
 
 
 def criar_mapa(linhas: int, colunas: int) -> list:
-    matriz = []
+    mapa = []
     for linha in range(linhas):
         vetor = []
         for coluna in range(colunas):
             vetor.append(None)
 
-        matriz.append(vetor)
+        mapa.append(vetor)
 
-    return matriz
+    return mapa
 
 
-def visualizar_mapa(mapa: list, linhas: int, colunas: int) -> None:
+def visualizar_mapa(mapa: list, linhas: int, colunas: int, secret: bool) -> None:
     # Linhas -> Números
     # Colunas -> Letras
     LETRAS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
@@ -37,14 +37,23 @@ def visualizar_mapa(mapa: list, linhas: int, colunas: int) -> None:
         for coluna in range(colunas):
             valor = mapa[linha][coluna]
 
-            if valor == None:
-                print("■", end=" ")
-            elif valor == 0:
-                print(CYAN + "x", end=" ")
-            elif valor == 1:
-                print(BLUE + "|", end=" ")
-            elif valor == 2:
-                print(RED + "•", end=" ")
+            # todo: fazer uma lógica mais eficiente
+            if not secret:
+                if valor == None and not secret:
+                    print("■", end=" ")
+                elif valor == 0:
+                    print(CYAN + "x", end=" ")
+                elif valor == 1:
+                    print(BLUE + "|", end=" ")
+                elif valor == 2:
+                    print(RED + "•", end=" ")
+            else:
+                if valor == None or valor == 1:
+                    print("■", end=" ")
+                elif valor == 0:
+                    print(CYAN + "x", end=" ")
+                elif valor == 2:
+                    print(RED + "•", end=" ")
 
         print("")
 
@@ -87,9 +96,11 @@ def conseguir_posicao():
 def define_posicao_jogador():
     linha, coluna = conseguir_posicao()
     while not coluna.isnumeric():
+        print("Posição incorreta. Tente novamente.")
         linha, coluna = conseguir_posicao()
 
     while not valida_posicao(linha, int(coluna)):
+        print("Posição incorreta. Tente novamente.")
         linha, coluna = conseguir_posicao()
 
     return [linha, int(coluna)]
@@ -104,7 +115,6 @@ def inserir_navio_jogador(mapa: list, repeticoes: int):
         jogada_certa = False
 
         while not jogada_certa:
-            print("-" * 50)
             linha, coluna = define_posicao_jogador()
 
             if i == 0:
@@ -129,11 +139,11 @@ def inserir_navio_jogador(mapa: list, repeticoes: int):
                         if posicao_jogada == posicao_escolhida:
                             mapa[linha][coluna] = 1
                             jogada_certa = True
+                else:
+                    print("Jogada incorreta. Tente novamente.")
 
-            if not jogada_certa:
-                print("Valor inválido. Tente novamente")
+        visualizar_mapa(mapa, LINHAS, COLUNAS, False)
 
-            visualizar_mapa(mapa, LINHAS, COLUNAS)
 
 
     return mapa
@@ -190,8 +200,7 @@ def inserir_navio_bot(mapa: list, repeticoes: int):
 
 
 def atacar_jogador(mapa: list):
-    # Bot ataca Jogador
-    novo_valor = None
+    print(BLUE + "Mapa do Jogador")
 
     def gera_posicao():
         linha = random.randint(0, 9)
@@ -199,6 +208,9 @@ def atacar_jogador(mapa: list):
 
         valor = mapa[linha][coluna]
         return [linha, coluna, valor]
+
+    acerto = 0
+    novo_valor = None
 
     linha, coluna, valor = gera_posicao()
     while valor == 0 or valor == 2:  # já jogado ou já acertado
@@ -208,32 +220,43 @@ def atacar_jogador(mapa: list):
         novo_valor = 0
     elif valor == 1:
         novo_valor = 2
+        acerto += 1
 
     mapa[linha][coluna] = novo_valor
 
-    return mapa
+    visualizar_mapa(mapa, LINHAS, COLUNAS, False)
+
+    return [mapa, acerto]
 
 
 def atacar_bot(mapa: list):
-    # Jogador ataca Bot
-    novo_valor = None
+    print(BLUE + "Mapa do Bot")
+    visualizar_mapa(mapa, LINHAS, COLUNAS, True)
 
-    while not novo_valor:
+    novo_valor = -1
+    acerto = 0
+
+    while novo_valor == -1:
         linha, coluna = define_posicao_jogador()
         valor = mapa[linha][coluna]
 
-        while valor == 0 or valor == 2:  # já jogado ou já acertado
-            linha, coluna = conseguir_posicao()
+        while valor == 0 or valor == 2:
+            print("Esse valor já voi jogado. Por favor, escolha outra posição.")
+            linha, coluna = define_posicao_jogador()
             valor = mapa[linha][coluna]
 
         if valor == None:
             novo_valor = 0
         elif valor == 1:
             novo_valor = 2
+            acerto += 1
 
-        mapa[linha][coluna] = novo_valor
+    # note: possível indentação incorreta. Caso erro, indente +1
+    mapa[linha][coluna] = novo_valor
 
-    return mapa
+    visualizar_mapa(mapa, LINHAS, COLUNAS, True)
+
+    return [mapa, acerto]
 
 
 LINHAS = 10
@@ -246,13 +269,17 @@ mapa_jogador = inserir_navio_jogador(mapa_jogador, 3)
 # Bot
 mapa_bot = criar_mapa(LINHAS, COLUNAS)
 mapa_bot = inserir_navio_bot(mapa_bot, 3)
-visualizar_mapa(mapa_bot, LINHAS, COLUNAS)
-
 
 # Atacar Navios
-ataque_bot = atacar_bot(mapa_bot)
-visualizar_mapa(ataque_bot, LINHAS, COLUNAS)
+jogadas_acertadas_bot = 0
+jogadas_acertadas_jogador = 0
 
-# Atacar Navios
-ataque_jogador = atacar_jogador(mapa_jogador)
-visualizar_mapa(ataque_jogador, LINHAS, COLUNAS)
+while True:
+    ataque_jogador, acerto = atacar_jogador(mapa_jogador)
+    jogadas_acertadas_jogador += acerto
+
+    ataque_bot, acerto = atacar_bot(mapa_bot)
+    jogadas_acertadas_bot += acerto
+
+    if jogadas_acertadas_bot == 3 or jogadas_acertadas_jogador == 3:
+        break
