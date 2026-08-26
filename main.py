@@ -14,7 +14,7 @@ import random
 # 2 (•) -> Acertou
 
 
-def criar_mapa(linhas, colunas):
+def criar_mapa(linhas: int, colunas: int) -> list:
     matriz = []
     for linha in range(linhas):
         vetor = []
@@ -26,7 +26,7 @@ def criar_mapa(linhas, colunas):
     return matriz
 
 
-def visualizar_mapa(mapa, linhas, colunas):
+def visualizar_mapa(mapa: list, linhas: int, colunas: int) -> None:
     # Linhas -> Números
     # Colunas -> Letras
     LETRAS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
@@ -55,24 +55,20 @@ def visualizar_mapa(mapa, linhas, colunas):
         print("")
 
 
-def converter_linha(linha):
+def converter_linha(linha: str) -> int:
     LETRAS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 
     if linha not in LETRAS:
         return -1
 
-    for i in range(len(LETRAS)):
-        if linha == LETRAS[i]:
-            linha = i
-
-    return linha
+    return LETRAS.index(linha)
 
 
-def valida_posicao(linha, coluna):
+def valida_posicao(linha: int, coluna: int):
     return (linha >= 0 and linha <= 9) and (coluna >= 0 and coluna <= 9)
 
 
-def verifica_posicao(linha_inicial, coluna_inicial, linha, coluna, i):
+def verifica_posicao(linha_inicial: int, coluna_inicial: int, linha: int, coluna: int, i: int):
     pos = None
     if coluna_inicial + i == coluna:
         pos = "direita"
@@ -105,11 +101,10 @@ def define_posicao_jogador():
     return [linha, int(coluna)]
 
 
-def inserir_navio_jogador(mapa, repeticoes):
+def inserir_navio_jogador(mapa: list, repeticoes: int):
     posicao_inicial = []
     posicao_escolhida = None
     posicao_jogada = None
-
     for i in range(repeticoes):
         jogada_certa = False
 
@@ -121,11 +116,11 @@ def inserir_navio_jogador(mapa, repeticoes):
                 mapa[linha][coluna] = 1
                 posicao_inicial.append(linha)
                 posicao_inicial.append(coluna)
-
-                linha_inicial = posicao_inicial[0]
-                coluna_inicial = posicao_inicial[1]
                 jogada_certa = True
             else:
+                linha_inicial = posicao_inicial[0]
+                coluna_inicial = posicao_inicial[1]
+
                 if (coluna_inicial + i == coluna and linha_inicial == linha) or (coluna_inicial - i == coluna and linha_inicial == linha) or (linha_inicial + i == linha and coluna_inicial == coluna) or (linha_inicial - i == linha and coluna_inicial == coluna):
                     if i == 1:
                         posicao_escolhida = verifica_posicao(linha_inicial, coluna_inicial, linha, coluna, i)
@@ -140,6 +135,8 @@ def inserir_navio_jogador(mapa, repeticoes):
                             mapa[linha][coluna] = 1
                             jogada_certa = True
 
+            if not jogada_certa:
+                print("Valor inválido. Tente novamente")
 
             visualizar_mapa(mapa, LINHAS, COLUNAS)
 
@@ -147,7 +144,19 @@ def inserir_navio_jogador(mapa, repeticoes):
     return mapa
 
 
-def inserir_navio_bot(mapa, repeticoes):
+def inserir_navio_bot(mapa: list, repeticoes: int):
+    def verifica_direcao(posicao_escolhida: str, linha: int, coluna: int):
+        if posicao_escolhida == "baixo":
+            linha += i
+        elif posicao_escolhida == "cima":
+            linha -= i
+        elif posicao_escolhida == "direita":
+            coluna += i
+        elif posicao_escolhida == "esquerda":
+            coluna -= i
+
+        return [linha, coluna]
+
     primeira_jogada = []
     posicoes_disponiveis = ["cima", "baixo", "direita", "esquerda"]
     posicao_escolhida = None
@@ -160,23 +169,9 @@ def inserir_navio_bot(mapa, repeticoes):
             primeira_jogada.append(coluna)
             mapa[linha][coluna] = 1
         else:
-            # Ver as jogadas disponíveis
-            # Escolher umas dessas jogadas aleatóriamente
-            # Preencher
             if not posicao_escolhida:
                 primeira_linha = primeira_jogada[0]
                 primeira_coluna = primeira_jogada[1]
-
-                # if linha + repeticoes >= 10:
-                #     # posicoes_disponiveis.remove("baixo")
-                #     posicoes_disponiveis.remove("direita")
-                # if linha - repeticoes < 0:
-                #     posicoes_disponiveis.remove("esquerda")
-                # if coluna + repeticoes >= 10:
-                #     # posicoes_disponiveis.remove("direita")
-                #     posicoes_disponiveis.remove("baixo")
-                # if coluna - repeticoes < 0:
-                #     posicoes_disponiveis.remove("cima")
 
                 if linha + repeticoes >= 10:
                     posicoes_disponiveis.remove("baixo")
@@ -188,35 +183,18 @@ def inserir_navio_bot(mapa, repeticoes):
                     posicoes_disponiveis.remove("esquerda")
 
                 posicao_escolhida = random.choice(posicoes_disponiveis)
-                print(posicao_escolhida)
 
-                if posicao_escolhida == "baixo":
-                    linha += i
-                elif posicao_escolhida == "cima":
-                    linha -= i
-                elif posicao_escolhida == "direita":
-                    coluna += i
-                elif posicao_escolhida == "esquerda":
-                    coluna -= i
-
+                linha, coluna = verifica_direcao(posicao_escolhida, linha, coluna)
                 mapa[linha][coluna] = 1
             else:
-                if posicao_escolhida == "baixo":
-                    primeira_linha += i
-                elif posicao_escolhida == "cima":
-                    primeira_linha -= i
-                elif posicao_escolhida == "direita":
-                    primeira_coluna += i
-                elif posicao_escolhida == "esquerda":
-                    primeira_coluna -= i
-
-                mapa[primeira_linha][primeira_coluna] = 1
+                linha, coluna = verifica_direcao(posicao_escolhida, primeira_linha, primeira_coluna)
+                mapa[linha][coluna] = 1
 
 
     return mapa
 
 
-def atacar_jogador(mapa):
+def atacar_jogador(mapa: list):
     # Bot ataca Jogador
     novo_valor = None
 
@@ -241,7 +219,7 @@ def atacar_jogador(mapa):
     return mapa
 
 
-def atacar_bot(mapa):
+def atacar_bot(mapa: list):
     # Jogador ataca Bot
     novo_valor = None
 
@@ -275,12 +253,12 @@ COLUNAS = 10
 # Colocar Navios
 mapa_bot = criar_mapa(LINHAS, COLUNAS)
 mapa_bot = inserir_navio_bot(mapa_bot, 3)
-# visualizar_mapa(mapa_bot, LINHAS, COLUNAS)
+visualizar_mapa(mapa_bot, LINHAS, COLUNAS)
 
 
 # Atacar Navios
-ataque_bot = atacar_bot(mapa_bot)
-visualizar_mapa(ataque_bot, LINHAS, COLUNAS)
+# ataque_bot = atacar_bot(mapa_bot)
+# visualizar_mapa(ataque_bot, LINHAS, COLUNAS)
 
 # Atacar Navios
 # ataque_jogador = atacar_jogador(mapa_jogador)
