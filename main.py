@@ -1,12 +1,6 @@
 import random
 from src.colors import *
 
-# Regras
-# None (■) -> Posição não jogada
-# 0 (x) -> Errou (Água)
-# 1 (|) -> Navio
-# 2 (•) -> Acertou
-
 
 def criar_mapa(linhas: int, colunas: int) -> list:
     mapa = []
@@ -35,7 +29,7 @@ def visualizar_mapa(mapa: list, linhas: int, colunas: int, secret: bool) -> None
         for coluna in range(colunas):
             valor = mapa[linha][coluna]
 
-            if valor == None or (valor == 1 and secret):
+            if valor is None or (valor == 1 and secret):
                 print("■", end=" ")
             elif valor == 0:
                 print(CYAN + "x", end=" ")
@@ -206,7 +200,7 @@ def atacar_jogador(mapa: list):
     while valor == 0 or valor == 2:
         linha, coluna, valor = gera_posicao()
 
-    if valor == None:
+    if valor is None:
         novo_valor = 0
     elif valor == 1:
         novo_valor = 2
@@ -234,7 +228,7 @@ def atacar_bot(mapa: list):
             linha, coluna = define_posicao_jogador()
             valor = mapa[linha][coluna]
 
-        if valor == None:
+        if valor is None:
             novo_valor = 0
         elif valor == 1:
             novo_valor = 2
@@ -250,7 +244,11 @@ LINHAS = 10
 COLUNAS = 10
 
 mapa_jogador = criar_mapa(LINHAS, COLUNAS)
+print(BLUE + "Mapa do Jogador")
+visualizar_mapa(mapa_jogador, LINHAS, COLUNAS, True)
+
 mapa_jogador = inserir_navio_jogador(mapa_jogador, 3)
+
 
 mapa_bot = criar_mapa(LINHAS, COLUNAS)
 mapa_bot = inserir_navio_bot(mapa_bot, 3)
